@@ -51,12 +51,30 @@ resource "aws_security_group_rule" "default_sg_outgoing" {
   security_group_id = aws_security_group.default_sg.id
 }
 
+
+module "terra-tute-vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "3.18.1"
+  name = "terra-tute-vpc"
+  cidr = "192.168.99.0/24"
+
+  azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
+  public_subnets  = ["192.168.99.0/27", "192.168.99.64/27", "192.168.99.128/27"]
+
+  enable_nat_gateway = true
+
+  tags = {
+    Terraform = "true"
+    Environment = "dev"
+  }
+}
+
 module "sg-module" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "4.16.2"
   name = "terra-tute-sg-mod"
   
-  vpc_id = data.aws_vpc.default.id
+  vpc_id = module.terra-tute-vpc.vpc_id
   
   # module feature - named rules
   ingress_rules = ["http-80-tcp","https-443-tcp"]
