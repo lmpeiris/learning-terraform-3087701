@@ -83,17 +83,17 @@ module "sg-module" {
   egress_cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_instance" "blog" {
-  ami           = data.aws_ami.app_ami.id
-  instance_type = var.instance_type
+#resource "aws_instance" "blog" {
+#  ami           = data.aws_ami.app_ami.id
+#  instance_type = var.instance_type
   # vpc_security_group_ids = [aws_security_group.default_sg.id]
-  vpc_security_group_ids = [module.sg-module.security_group_id]
+#  vpc_security_group_ids = [module.sg-module.security_group_id]
   # this is optional. vpc to launch can be determined from security group
-  subnet_id = module.terra-tute-vpc.public_subnets[0]
-  tags = {
-    Name = "HelloWorld"
-  }
-}
+#  subnet_id = module.terra-tute-vpc.public_subnets[0]
+#  tags = {
+#    Name = "HelloWorld"
+#  }
+#}
 
 module "terra-alb" {
   source  = "terraform-aws-modules/alb/aws"
@@ -133,4 +133,20 @@ module "terra-alb" {
   tags = {
     Environment = "dev"
   }
+}
+
+module "autoscaling" {
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "6.7.0"
+
+  name = "terra-asg"
+  min_size = 1
+  max_size = 1
+
+  vpc_zone_identifier = module.terra-tute-vpc.public_subnets
+  target_group_arns = module.terra-alb.target_group_arns
+  security_groups = [module.sg-module.security_group_id]
+
+  image_id           = data.aws_ami.app_ami.id
+  instance_type = var.instance_type
 }
