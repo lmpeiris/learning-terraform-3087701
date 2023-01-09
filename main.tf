@@ -109,7 +109,7 @@ module "terra-alb" {
 
   target_groups = [
     {
-      name_prefix      = "terra-alb-"
+      name_prefix      = "trf-"
       backend_protocol = "HTTP"
       backend_port     = 80
       target_type      = "instance"
