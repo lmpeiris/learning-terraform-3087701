@@ -13,7 +13,7 @@ variable "min_size" {
 variable "max_size" {
   description = "max tomcat instances"
   type = number
-  default = var.min_size
+  default = 1
 }
 
 variable "public_port" {
