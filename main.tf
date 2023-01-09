@@ -103,7 +103,7 @@ module "terra-alb" {
 
   load_balancer_type = "application"
 
-  vpc_id             = module.terra-tute-vpc.vpc-vpc_id
+  vpc_id             = module.terra-tute-vpc.vpc_id
   subnets            = module.terra-tute-vpc.public_subnets
   security_groups    = [module.sg-module.security_group_id]
 
