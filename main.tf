@@ -74,7 +74,9 @@ module "sg-module" {
   version = "4.16.2"
   name = "terra-tute-sg-mod"
   
-  vpc_id = module.terra-tute-vpc.vpc_id
+  # vpc_id = module.terra-tute-vpc.vpc_id
+  # testing out what the tutorial says
+  vpc_id = module.terra-tute-vpc.public_subnets[0]
   
   # module feature - named rules
   ingress_rules = ["http-80-tcp","https-443-tcp"]
