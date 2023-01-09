@@ -74,10 +74,8 @@ module "sg-module" {
   version = "4.16.2"
   name = "terra-tute-sg-mod"
   
-  # vpc_id = module.terra-tute-vpc.vpc_id
-  # testing out what the tutorial says
-  vpc_id = module.terra-tute-vpc.public_subnets[0]
-  
+  vpc_id = module.terra-tute-vpc.vpc_id
+
   # module feature - named rules
   ingress_rules = ["http-80-tcp","https-443-tcp"]
   ingress_cidr_blocks = ["0.0.0.0/0"]
@@ -90,6 +88,8 @@ resource "aws_instance" "blog" {
   instance_type = var.instance_type
   # vpc_security_group_ids = [aws_security_group.default_sg.id]
   vpc_security_group_ids = [module.sg-module.security_group_id]
+  # this is optional. vpc to launch can be determined from security group
+  subnet_id = module.terra-tute-vpc.public_subnets[0]
   tags = {
     Name = "HelloWorld"
   }
