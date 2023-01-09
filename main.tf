@@ -14,44 +14,6 @@ data "aws_ami" "app_ami" {
   owners = ["979382823631"] # Bitnami
 }
 
-data "aws_vpc" "default" {
-  default = true
-}
-
-resource "aws_security_group" "default_sg" {
-  name = "terra_tute_web_sg"
-  description = "allow access to web"
-  vpc_id = data.aws_vpc.default.id
-}
-
-resource "aws_security_group_rule" "default_sg_http" {
-  type = "ingress"
-  from_port = 80
-  to_port = 80
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.default_sg.id
-}
-
-resource "aws_security_group_rule" "default_sg_https" {
-  type = "ingress"
-  from_port = 443
-  to_port = 443
-  protocol = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.default_sg.id
-}
-
-resource "aws_security_group_rule" "default_sg_outgoing" {
-  type = "egress"
-  from_port = 0
-  to_port = 0
-  protocol = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.default_sg.id
-}
-
-
 module "terra-tute-vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "3.18.1"
@@ -83,18 +45,6 @@ module "sg-module" {
   egress_cidr_blocks = ["0.0.0.0/0"]
 }
 
-#resource "aws_instance" "blog" {
-#  ami           = data.aws_ami.app_ami.id
-#  instance_type = var.instance_type
-  # vpc_security_group_ids = [aws_security_group.default_sg.id]
-#  vpc_security_group_ids = [module.sg-module.security_group_id]
-  # this is optional. vpc to launch can be determined from security group
-#  subnet_id = module.terra-tute-vpc.public_subnets[0]
-#  tags = {
-#    Name = "HelloWorld"
-#  }
-#}
-
 module "terra-alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "8.2.1"
@@ -118,7 +68,7 @@ module "terra-alb" {
 
   http_tcp_listeners = [
     {
-      port               = 80
+      port               = var.public_port
       protocol           = "HTTP"
       target_group_index = 0
     }
@@ -134,8 +84,8 @@ module "autoscaling" {
   version = "6.7.0"
 
   name = "terra-asg"
-  min_size = 1
-  max_size = 1
+  min_size = var.min_size
+  max_size = var.max_size
 
   vpc_zone_identifier = module.terra-tute-vpc.public_subnets
   target_group_arns = module.terra-alb.target_group_arns
