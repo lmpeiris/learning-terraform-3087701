@@ -60,7 +60,7 @@ module "terra-tute-vpc" {
 
   azs             = ["us-west-2a", "us-west-2b", "us-west-2c"]
   public_subnets  = ["192.168.99.0/27", "192.168.99.64/27", "192.168.99.128/27"]
-
+  enable_dns_hostnames = true
   enable_nat_gateway = true
 
   tags = {
